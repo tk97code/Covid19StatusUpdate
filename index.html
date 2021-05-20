@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="">
+	<title>CoronaVirus Information</title>
+	<link rel="shortcut icon" href="Images/favicon.png">
+
+	<!-- ChartJS -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+	<!-- Jquery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" 
+		href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
+	/>
+
+	<!-- Mapbox API -->
+	<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+
+	<!-- Custom CSS -->
+	<link rel="stylesheet" href="Css/style.css">
+
+	<!-- Font Awesome-->
+	<script src="https://kit.fontawesome.com/e5b75fc3d0.js" crossorigin="anonymous"></script>
+
+	<!-- Firebase -->
+	<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
+
+	<!-- Remove OOOwebhostapp image -->
+	<style>
+	    img[src="https://cdn.000webhost.com/000webhost/logo/footer-powered-by-000webhost-white2.png"] {
+	        display: none;
+	    }
+	</style>
+</head>
+
+<body>
+
+	<!-- Geocoder -->
+	<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+	<link
+	rel="stylesheet"
+	href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+	type="text/css"
+	/>
+
+	<!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+	
+	<div class="container-fluid main-content" style="min-height: 95%">
+		<br>
+		<div class="text-center">
+			<img src="Images/logo.png" class="img-fluid logo" alt="CORONAVIRUS INFORMATION"/>
+			<div id="count-view" class="container-fluid">
+				<span class="count-contain align-middle">
+					<i class="far fa-eye" style="color: white"></i>
+					<h2 id="count-text" style="font-size: 25px;">Views: ...</h2>
+				</span>
+			</div>
+		</div>
+		
+		<p></p>
+	
+		<div class="text-center">
+			<select id="select" class="form-control col-sm-2">
+				<option selected disabled>
+					Select Country
+				</option>
+			</select>
+		</div>
+
+		<br>
+
+		<div class="text-center div-notification">
+			<h3>Please choose country to see</h3>
+		</div> 
+
+		<div class="text-center div-title">
+			<h3 class="title">Covid-19 in <h3 id="country-title" class="title"></h3></h3>
+		</div> 
+	
+		<br> <br>
+
+		<div id="wrapper">
+			<br>
+			<canvas id="chart"></canvas>
+		</div>
+
+		<div class="board d-flex justify-content-center">
+			<table class="data container-fluid col-sm-6 board-world">
+				<tbody>
+					<tr>
+						<th class="text-center board-col" colspan="2">
+							<h4>Covid-19 in the World</h4>
+						</th>
+					</tr>
+
+					<tr>
+					    <td class="text-center board-row" id="td-affected-countries">
+					    	<span id="affected-countries"></span>
+					    	<br>Countries
+					    </td>
+					    <td class="text-center board-row" id="td-cases">
+					    	<span id="cases"></span>
+					    	<br>Total Cases
+					    </td>
+				  	</tr>
+
+				  	<tr>
+					    <td class="text-center board-row" id="td-deaths">
+					    	<span id="deaths"></span>
+					    	<br>Total Deaths
+					    </td>
+					    <td class="text-center board-row" id="td-recovered">
+					    	<span id="recovered"></span>
+					    	<br>Recovered
+					    </td>
+				  	</tr>
+
+				  	<tr>
+					    <td class="text-center board-row" id="td-todayCases">
+					    	<span id="todayCases"></span>
+					    	<br>New Cases
+					    </td>
+					    <td class="text-center board-row" id="td-todayDeaths">
+					    	<span id="todayDeaths"></span>
+					    	<br>New Deaths
+					    </td>
+				  	</tr>
+				</tbody>
+
+			</table>
+		</div>
+
+		<br>
+		<div class="d-flex justify-content-center">
+			<div id="map"></div>
+		</div>
+
+		<br> <br>
+
+		<div class="d-flex justify-content-center">
+			<h2>List Countries</h2>
+		</div>
+
+		<div class="d-flex justify-content-center">
+
+			<table class="table table-hover table-dark table-contries">
+		        <thead>
+		            <tr class="text-center">
+		                <th class="col-title" scope="col">#</th>
+		                <th class="col-title" scope="col">Countries</th>
+		                <th class="col-title" scope="col">Total Cases</th>
+		                <th class="col-title" scope="col">Active</th>
+		                <th class="col-title" scope="col">Recovered</th>
+		                <th class="col-title" scope="col">Deaths</th>
+		                <th class="col-title" scope="col">Today Cases</th>
+		                <th class="col-title" scope="col">Today Deaths</th>
+		            </tr>
+		        </thead>
+		        <tbody id="tableBody">
+		        	<tr>
+		        	</tr>
+		        </tbody>
+		    </table>
+		</div>
+	</div>
+
+	<footer style="min-height: 5%;">
+		<div class="container-fluid"></div>
+	</footer>
+
+	<script type="text/javascript" src="Js/app.js"></script>
+	<script type="text/javascript" src="Js/board-total.js"></script>
+	<script type="text/javascript" src="Js/map.js"></script>
+
+	<!-- Firebase count views -->
+	<script type="text/javascript">
+		// Your web app's Firebase configuration
+		var firebaseConfig = {
+			apiKey: "AIzaSyA6VIMw7bX3KGtn7pLvWHmxPmBvKmjW4l0",
+			authDomain: "realtime-view-count-7257b.firebaseapp.com",
+			projectId: "realtime-view-count-7257b",
+			storageBucket: "realtime-view-count-7257b.appspot.com",
+			messagingSenderId: "240677039601",
+			appId: "1:240677039601:web:1b489dfb277bff5ae46850"
+		};
+		// Initialize Firebase
+		firebase.initializeApp(firebaseConfig);
+
+		function get_viewer_ip(json) {
+			viewer_ip = json.ip;
+			console.log(viewer_ip);
+			count_view(viewer_ip);
+		}
+
+		function count_view() {
+			var views;
+			var ip_to_string = viewer_ip.toString();
+
+			for (var i = 0; i < ip_to_string.length; i++) {
+				ip_to_string = ip_to_string.replace(".", "-");
+			}
+
+			firebase.database().ref().child("page_views/" + ip_to_string).set({
+				viewer_ip: viewer_ip
+			});
+
+			firebase.database().ref().child("page_views").on("value", function(snapshot) {
+				views = snapshot.numChildren();
+				document.getElementById("count-text").innerHTML = `Views: ${views}`;
+			});
+		}
+	</script>
+
+	<!-- Call API -->
+	<script src="https://api.ipify.org?format=jsonp&callback=get_viewer_ip"></script>
+
+</html>
